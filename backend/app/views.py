@@ -6,10 +6,14 @@ from rest_framework.decorators import api_view
 
 import uuid
 from django.db import models
+from django.utils.encoding import smart_str
 from .models import UploadedFile
+from datetime import datetime
 import time
+import copy
 
 from . import algo
+from .models import Record
 
 def store_file_and_generate_id(file):
     # 生成一个唯一的文件标识符
@@ -49,6 +53,12 @@ def process_files(train_file_path, predict_file):
     # print(train_res)
     # print(predict_res)
     ret = {**train_res, **predict_res}
+    # save_dic = copy.deepcopy(ret)
+    # current_time =datetime.now()
+    # time_str = current_time.strftime('%Y-%m-%d %H:%M:%S')
+    # save_dic['id'] = time_str
+    # record = Record(data=save_dic)
+    # record.save()
     print(ret)
     return ret
     
@@ -98,3 +108,16 @@ def upload_predict_file(request):
     ret = process_files(first_file, file)    
 
     return JsonResponse(ret)
+
+def download_file(request):
+    file_path = '/home/junj/2023_autumn/Software_Engineering/backend/download/predict.json'
+    with open(file_path, 'rb') as f:
+        response = HttpResponse(f, content_type='application/force-download')
+        response['Content-Disposition'] = 'attachment; filename="%s"' % smart_str(file_path)
+        response['X-Sendfile'] = smart_str(file_path)
+        return response
+
+def getRecord(request):
+    records = Record.objects.all()
+    data_list = list(records.values('data'))
+    return JsonResponse(data_list, safe=False)

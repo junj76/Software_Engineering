@@ -24,4 +24,6 @@ urlpatterns = [
     path('post/', views.post),
     path('train/', csrf_exempt(views.upload_train_file)),
     path('predict/', csrf_exempt(views.upload_predict_file)),
+    path('download/', csrf_exempt(views.download_file)),
+    path('getRecord/', views.getRecord)
 ]
